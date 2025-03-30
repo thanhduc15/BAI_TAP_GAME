@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="SDL2" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/SDL2" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="include" />
+					<Add directory="../x86_64-w64-mingw32/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-lmingw32 -lSDL2 -lSDL2main -lSDL2_image -lSDL2_ttf" />
+					<Add directory="../x86_64-w64-mingw32/lib" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/SDL2" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="SDL2.dll" />
+		<Unit filename="SDL2_image.dll" />
+		<Unit filename="include/Background.h" />
+		<Unit filename="include/Bullet.h" />
+		<Unit filename="include/EnemyTank.h" />
+		<Unit filename="include/Game.h" />
+		<Unit filename="include/HP.h" />
+		<Unit filename="include/Image.h" />
+		<Unit filename="include/PlayerTank.h" />
+		<Unit filename="include/Wall.h" />
+		<Unit filename="include/am_thanh.h" />
+		<Unit filename="include/father_file.h" />
+		<Unit filename="include/menu.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="src/Background.cpp" />
+		<Unit filename="src/Bullet.cpp" />
+		<Unit filename="src/EnemyTank.cpp" />
+		<Unit filename="src/Game.cpp" />
+		<Unit filename="src/HP.cpp" />
+		<Unit filename="src/Image.cpp" />
+		<Unit filename="src/PlayerTank.cpp" />
+		<Unit filename="src/Wall.cpp" />
+		<Unit filename="src/am_thanh.cpp" />
+		<Unit filename="src/menu.cpp" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
