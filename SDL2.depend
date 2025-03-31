@@ -507,8 +507,7 @@
 1743192290 d:\sdl2-2.28.5\sdl2\game_sdl\include\image.h
 	"father_file.h"
 
-1743192290 d:\sdl2-2.28.5\sdl2\game_sdl\include\hp.h
-	"father_file.h"
+1743392257 d:\sdl2-2.28.5\sdl2\game_sdl\include\hp.h
 
 1743389076 d:\sdl2-2.28.5\sdl2\game_sdl\include\enemytank.h
 	"father_file.h"
@@ -531,10 +530,10 @@
 	"am_thanh.h"
 	<cstdlib>
 
-1743390107 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\game.cpp
+1743392257 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\game.cpp
 	"Game.h"
 
-1743192290 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\hp.cpp
+1743392257 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\hp.cpp
 	"HP.h"
 
 1743345080 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\image.cpp
@@ -560,15 +559,12 @@
 1743266569 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\background.cpp
 	"Background.h"
 
-1743390249 d:\sdl2-2.28.5\sdl2\game_sdl\include\menu.h
-	<SDL.h>
-	<SDL_ttf.h>
-	<string>
+1743390705 d:\sdl2-2.28.5\sdl2\game_sdl\include\menu.h
 	"father_file.h"
+	<SDL_ttf.h>
 
-1743390418 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\menu.cpp
+1743390901 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\menu.cpp
 	"Menu.h"
-	<iostream>
 
 1743388805 d:\sdl2-2.28.5\sdl2\game_sdl\include\healthpack.h
 	"father_file.h"

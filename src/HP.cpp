@@ -12,6 +12,10 @@ void HP::hoiphuc() {
     if (mauhientai > mautoida) mauhientai = mautoida;
 }
 
+void HP::resetToFull() {
+    mauhientai = mautoida; // Hồi đầy máu trực tiếp
+}
+
 bool HP::live() const { return mauhientai > 0; }
 bool HP::die() const { return mauhientai == 0; }
 int HP::getMauHienTai() const { return mauhientai; }

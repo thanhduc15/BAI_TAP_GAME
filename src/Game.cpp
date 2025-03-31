@@ -16,12 +16,19 @@ Game::Game() :
     gameState(MENU_SCREEN) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-       // std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return;
     }
 
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! TTF_Error: " << TTF_GetError() << std::endl;
+        return;
+    } else {
+        std::cout << "SDL_ttf initialized successfully!" << std::endl;
+    }
+
     if (!amThanh.init()) {
-      //  std::cerr << "Failed to initialize sound system!" << std::endl;
+        std::cerr << "Failed to initialize sound system!" << std::endl;
     }
 
     IMG_Init(IMG_INIT_PNG);
@@ -71,6 +78,7 @@ Game::~Game() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -118,7 +126,8 @@ void Game::spawnEnemy() {
 void Game::resetGame() {
     player = PlayerTank(SCREEN_WIDTH / 2, SCREEN_HEIGHT - TILE_SIZE);
     player.setImage(playerTankImage);
-    player.score = 0;
+    player.score = 0; // Reset điểm về 0
+    player.hp.resetToFull(); // Hồi đầy máu trực tiếp
     generateWalls();
     generateEnemies();
     healthPacks.clear();
@@ -135,11 +144,11 @@ void Game::handleEvents() {
 
         GameState newState = menu->handleEvents(event, gameState);
         if (newState != gameState) {
-            gameState = newState;
-
-            if (gameState == PLAYING && newState != PAUSED) {
+            // Nếu chuyển từ GAME_OVER sang PLAYING (nhấn ENTER), reset game
+            if (gameState == GAME_OVER && newState == PLAYING) {
                 resetGame();
             }
+            gameState = newState;
             continue;
         }
 
@@ -176,14 +185,25 @@ void Game::update() {
 
     Uint32 currentTime = SDL_GetTicks();
     if (currentTime - lastEnemySpawnTime > ENEMY_SPAWN_INTERVAL) {
-        int enemyCount =  (rand() % 4); // Sinh ngẫu nhiên 4-7 kẻ thù (4 + 0 đến 3)
+        int score = player.score;
+        int minEnemies, maxEnemies;
+
+        if (score < 200) {
+            minEnemies = 1;
+            maxEnemies = 3;
+        } else {
+            int level = score / 200;
+            minEnemies = 1 + (level * 3);
+            maxEnemies = 3 + (level * 3);
+        }
+
+        int enemyCount = minEnemies + (rand() % (maxEnemies - minEnemies + 1));
         for (int i = 0; i < enemyCount; i++) {
             spawnEnemy();
         }
         lastEnemySpawnTime = currentTime;
     }
 
-    // Chỉ sinh HealthPack nếu không còn cục máu nào active trên map
     bool hasActiveHealth = false;
     for (const auto& health : healthPacks) {
         if (health.active) {
@@ -191,7 +211,7 @@ void Game::update() {
             break;
         }
     }
-    if (!hasActiveHealth && currentTime - lastHealthSpawnTime > Uint32(10000 + (rand() % 20000))) { // 30-50 giây
+    if (!hasActiveHealth && currentTime - lastHealthSpawnTime > Uint32(10000 + (rand() % 20000))) { // 10-30 giây
         int x = rand() % (SCREEN_WIDTH - TILE_SIZE / 2);
         int y = rand() % (SCREEN_HEIGHT - TILE_SIZE / 2);
         healthPacks.push_back(HealthPack(x, y));
@@ -244,7 +264,8 @@ void Game::checkCollisions() {
         if (health.active && SDL_HasIntersection(&player.rect, &health.rect)) {
             health.active = false;
             player.hp.hoiphuc(); // Hồi 1 HP
-            player.hp.hoiphuc(); // Hồi thêm 1 HP nữa, tổng cộng 2 HP
+            player.hp.hoiphuc(); // Hồi 1 HP nữa
+            player.hp.hoiphuc(); // Hồi 1 HP nữa, tổng 3 HP
         }
     }
     healthPacks.erase(std::remove_if(healthPacks.begin(), healthPacks.end(),

@@ -1,5 +1,4 @@
 #pragma once
-#include "father_file.h"
 
 class HP {
 private:
@@ -10,6 +9,7 @@ public:
     HP();
     void dinhchuong(int damage);
     void hoiphuc();
+    void resetToFull(); // Thêm hàm mới để hồi đầy máu
     bool live() const;
     bool die() const;
     int getMauHienTai() const;
