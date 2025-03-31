@@ -11,7 +11,7 @@ public:
     Menu(SDL_Renderer* renderer);
     ~Menu();
 
-    void loadFont();
+    bool loadFont();
     void renderMenuScreen();
     void renderPauseScreen();
     void renderGameOverScreen(int score);

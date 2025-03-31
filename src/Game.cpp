@@ -6,11 +6,13 @@ Game::Game() :
     enemyTankImage(nullptr),
     bulletImage(nullptr),
     wallImage(nullptr),
+    healthImage(nullptr),
     background(nullptr),
     menu(nullptr),
     amThanh(AmThanh::getInstance()),
     running(true),
     lastEnemySpawnTime(0),
+    lastHealthSpawnTime(0),
     gameState(MENU_SCREEN) {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -62,6 +64,7 @@ Game::~Game() {
     delete enemyTankImage;
     delete bulletImage;
     delete wallImage;
+    delete healthImage;
     delete background;
     delete menu;
 
@@ -76,9 +79,11 @@ bool Game::loadResources() {
     enemyTankImage = new Image(renderer, "assets/enemy_tank.png");
     bulletImage = new Image(renderer, "assets/bullet.png");
     wallImage = new Image(renderer, "assets/wall.png");
+    healthImage = new Image(renderer, "assets/health_pack.png");
 
     if (!playerTankImage->getTexture() || !enemyTankImage->getTexture() ||
-        !bulletImage->getTexture() || !wallImage->getTexture()) {
+        !bulletImage->getTexture() || !wallImage->getTexture() ||
+        !healthImage->getTexture()) {
         std::cerr << "Failed to load one or more images!" << std::endl;
         return false;
     }
@@ -116,6 +121,8 @@ void Game::resetGame() {
     player.score = 0;
     generateWalls();
     generateEnemies();
+    healthPacks.clear();
+    lastHealthSpawnTime = SDL_GetTicks();
 }
 
 void Game::handleEvents() {
@@ -169,11 +176,27 @@ void Game::update() {
 
     Uint32 currentTime = SDL_GetTicks();
     if (currentTime - lastEnemySpawnTime > ENEMY_SPAWN_INTERVAL) {
-        int enemyCount = std::max(1, rand() % 4);
+        int enemyCount =  (rand() % 4); // Sinh ngẫu nhiên 4-7 kẻ thù (4 + 0 đến 3)
         for (int i = 0; i < enemyCount; i++) {
             spawnEnemy();
         }
         lastEnemySpawnTime = currentTime;
+    }
+
+    // Chỉ sinh HealthPack nếu không còn cục máu nào active trên map
+    bool hasActiveHealth = false;
+    for (const auto& health : healthPacks) {
+        if (health.active) {
+            hasActiveHealth = true;
+            break;
+        }
+    }
+    if (!hasActiveHealth && currentTime - lastHealthSpawnTime > Uint32(10000 + (rand() % 20000))) { // 30-50 giây
+        int x = rand() % (SCREEN_WIDTH - TILE_SIZE / 2);
+        int y = rand() % (SCREEN_HEIGHT - TILE_SIZE / 2);
+        healthPacks.push_back(HealthPack(x, y));
+        healthPacks.back().setImage(healthImage);
+        lastHealthSpawnTime = currentTime;
     }
 }
 
@@ -206,7 +229,26 @@ void Game::checkCollisions() {
                 }
             }
         }
+        if (enemy.active && SDL_HasIntersection(&player.rect, &enemy.rect)) {
+            enemy.active = false;
+            player.hp.dinhchuong(3);
+            amThanh.playSound("trung_dan");
+            if (player.hp.die()) {
+                gameState = GAME_OVER;
+                std::cout << "Game Over! Final Score: " << player.score << std::endl;
+            }
+        }
     }
+
+    for (auto& health : healthPacks) {
+        if (health.active && SDL_HasIntersection(&player.rect, &health.rect)) {
+            health.active = false;
+            player.hp.hoiphuc(); // Hồi 1 HP
+            player.hp.hoiphuc(); // Hồi thêm 1 HP nữa, tổng cộng 2 HP
+        }
+    }
+    healthPacks.erase(std::remove_if(healthPacks.begin(), healthPacks.end(),
+        [](const HealthPack& h) { return !h.active; }), healthPacks.end());
 }
 
 void Game::renderThanhmau() {
@@ -236,6 +278,10 @@ void Game::renderGameElements() {
 
     for (auto& enemy : enemies) {
         enemy.render(renderer);
+    }
+
+    for (auto& health : healthPacks) {
+        health.render(renderer);
     }
 
     renderThanhmau();

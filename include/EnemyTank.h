@@ -6,7 +6,7 @@
 class EnemyTank {
 public:
     SDL_Rect rect;
-    bool active;
+    bool active; // Đặt trước dx, dy để khớp với thứ tự khởi tạo
     std::vector<Bullet> bullets;
     Uint32 lastShootTime;
     int dx, dy;
