@@ -475,15 +475,19 @@
 1743192290 source:d:\sdl2-2.28.5\sdl2\game_sdl\main.cpp
 	"Game.h"
 
-1743388885 d:\sdl2-2.28.5\sdl2\game_sdl\include\game.h
-	"father_file.h"
-	"am_thanh.h"
-	"Background.h"
+1743684528 d:\sdl2-2.28.5\sdl2\game_sdl\include\game.h
+	<SDL.h>
+	<vector>
+	<iostream>
 	"PlayerTank.h"
 	"EnemyTank.h"
 	"Wall.h"
+	"Image.h"
+	"Background.h"
 	"Menu.h"
 	"HealthPack.h"
+	"am_thanh.h"
+	<fstream>
 
 1743388885 d:\sdl2-2.28.5\sdl2\game_sdl\include\father_file.h
 	<SDL.h>
@@ -494,7 +498,7 @@
 	<ctime>
 	<string>
 
-1743299796 d:\sdl2-2.28.5\sdl2\game_sdl\include\playertank.h
+1743682334 d:\sdl2-2.28.5\sdl2\game_sdl\include\playertank.h
 	"father_file.h"
 	"Bullet.h"
 	"HP.h"
@@ -522,7 +526,7 @@
 	"father_file.h"
 	"Image.h"
 
-1743299796 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\bullet.cpp
+1743688704 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\bullet.cpp
 	"Bullet.h"
 
 1743345080 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\enemytank.cpp
@@ -530,7 +534,7 @@
 	"am_thanh.h"
 	<cstdlib>
 
-1743392257 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\game.cpp
+1743686732 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\game.cpp
 	"Game.h"
 
 1743392257 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\hp.cpp
@@ -559,12 +563,13 @@
 1743266569 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\background.cpp
 	"Background.h"
 
-1743390705 d:\sdl2-2.28.5\sdl2\game_sdl\include\menu.h
+1743683640 d:\sdl2-2.28.5\sdl2\game_sdl\include\menu.h
 	"father_file.h"
 	<SDL_ttf.h>
 
-1743390901 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\menu.cpp
+1743688148 source:d:\sdl2-2.28.5\sdl2\game_sdl\src\menu.cpp
 	"Menu.h"
+	<SDL_image.h>
 
 1743388805 d:\sdl2-2.28.5\sdl2\game_sdl\include\healthpack.h
 	"father_file.h"

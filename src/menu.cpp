@@ -1,23 +1,33 @@
 #include "Menu.h"
+#include <SDL_image.h>
 
 Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), font(nullptr) {
     textColor = {255, 255, 255, 255};
+    menuTexture = nullptr;
+    if (!renderer) {
+        std::cerr << "Renderer is null! Check SDL_CreateRenderer in main/game setup." << std::endl;
+    } else {
+        std::cout << "Renderer initialized successfully!" << std::endl;
+    }
+    loadFont();
+    loadMenuImage();
 }
 
 Menu::~Menu() {
     if (font) {
         TTF_CloseFont(font);
     }
+    if (menuTexture) {
+        SDL_DestroyTexture(menuTexture);
+    }
 }
 
 void Menu::loadFont() {
-    // Kiểm tra xem SDL_ttf đã khởi tạo chưa
     if (!TTF_WasInit()) {
         std::cerr << "SDL_ttf is not initialized! Please check TTF_Init() in Game constructor." << std::endl;
         return;
     }
 
-    // Load font từ đường dẫn Windows
     font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 28);
     if (!font) {
         std::cerr << "Failed to load font from C:/Windows/Fonts/arial.ttf: " << TTF_GetError() << std::endl;
@@ -30,9 +40,24 @@ void Menu::loadFont() {
     }
 }
 
+void Menu::loadMenuImage() {
+    SDL_Surface* surface = IMG_Load("assets/menu.png");
+    if (!surface) {
+        std::cerr << "Failed to load menu.png: " << IMG_GetError() << std::endl;
+        return;
+    }
+    std::cout << "Menu image size: " << surface->w << "x" << surface->h << std::endl; // Debug kích thước
+    menuTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    if (!menuTexture) {
+        std::cerr << "Failed to create texture from menu.png: " << SDL_GetError() << std::endl;
+    } else {
+        std::cout << "Successfully loaded menu.png!" << std::endl;
+    }
+}
+
 void Menu::renderText(const std::string& text, int x, int y) {
     if (!font) {
-        // Chỉ in lỗi một lần để tránh spam console
         static bool errorPrinted = false;
         if (!errorPrinted) {
             std::cerr << "Font not loaded, cannot render text!" << std::endl;
@@ -62,34 +87,67 @@ void Menu::renderText(const std::string& text, int x, int y) {
 }
 
 void Menu::renderMenuScreen() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-    SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    SDL_RenderFillRect(renderer, &overlay);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Đặt màu đen cho RenderClear
+    SDL_RenderClear(renderer);
 
-    renderText("BATTLE CITY GALAXY", 250, 150);
+    // Render ảnh nền menu với kích thước khớp màn hình
+    if (menuTexture) {
+        SDL_Rect dest = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_RenderCopy(renderer, menuTexture, NULL, &dest);
+        std::cout << "Rendering menuTexture at " << SCREEN_WIDTH << "x" << SCREEN_HEIGHT << std::endl; // Debug render
+    }
+
+    // Tạm bỏ overlay để kiểm tra ảnh nền
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    // SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    // SDL_RenderFillRect(renderer, &overlay);
+
+    renderText("BATTLE SHIP GALAXY", 250, 150);
     renderText("Press SPACE to Start", 270, 300);
     renderText("Use Mouse to Move and Shoot", 220, 350);
+
+    SDL_RenderPresent(renderer);
 }
 
 void Menu::renderPauseScreen() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-    SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    SDL_RenderFillRect(renderer, &overlay);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    if (menuTexture) {
+        SDL_Rect dest = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_RenderCopy(renderer, menuTexture, NULL, &dest);
+    }
+
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    // SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    // SDL_RenderFillRect(renderer, &overlay);
 
     renderText("PAUSED", 350, 250);
     renderText("Press SPACE to Continue", 250, 300);
     renderText("Press ESC to Return to Menu", 230, 350);
+
+    SDL_RenderPresent(renderer);
 }
 
 void Menu::renderGameOverScreen(int score) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-    SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    SDL_RenderFillRect(renderer, &overlay);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    if (menuTexture) {
+        SDL_Rect dest = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_RenderCopy(renderer, menuTexture, NULL, &dest);
+    }
+
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    // SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    // SDL_RenderFillRect(renderer, &overlay);
 
     renderText("GAME OVER", 320, 200);
     renderText("Your Score: " + std::to_string(score), 320, 250);
     renderText("Press ENTER to Play Again", 250, 350);
     renderText("Press ESC to Quit", 290, 400);
+
+    SDL_RenderPresent(renderer);
 }
 
 GameState Menu::handleEvents(SDL_Event& event, GameState currentState) {

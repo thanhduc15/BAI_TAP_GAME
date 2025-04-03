@@ -46,6 +46,7 @@
 		<Unit filename="include/EnemyTank.h" />
 		<Unit filename="include/Game.h" />
 		<Unit filename="include/HP.h" />
+		<Unit filename="include/HealthPack.h" />
 		<Unit filename="include/Image.h" />
 		<Unit filename="include/PlayerTank.h" />
 		<Unit filename="include/Wall.h" />
@@ -58,6 +59,7 @@
 		<Unit filename="src/EnemyTank.cpp" />
 		<Unit filename="src/Game.cpp" />
 		<Unit filename="src/HP.cpp" />
+		<Unit filename="src/HealthPack.cpp" />
 		<Unit filename="src/Image.cpp" />
 		<Unit filename="src/PlayerTank.cpp" />
 		<Unit filename="src/Wall.cpp" />

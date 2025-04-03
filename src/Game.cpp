@@ -13,7 +13,8 @@ Game::Game() :
     running(true),
     lastEnemySpawnTime(0),
     lastHealthSpawnTime(0),
-    gameState(MENU_SCREEN) {
+    gameState(MENU_SCREEN),
+    highScore(0) { // Khoi tao highScore
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
@@ -64,6 +65,7 @@ Game::Game() :
 
     generateWalls();
     generateEnemies();
+    loadHighScore();
 }
 
 Game::~Game() {
@@ -99,6 +101,7 @@ bool Game::loadResources() {
     return true;
 }
 
+// Tao cac tuong bao ve duoi man hinh
 void Game::generateWalls() {
     walls.clear();
     for (int i = 0; i < SCREEN_WIDTH; i += TILE_SIZE) {
@@ -107,6 +110,7 @@ void Game::generateWalls() {
     }
 }
 
+// Tao ke dich ban dau
 void Game::generateEnemies() {
     enemies.clear();
     enemies.push_back(EnemyTank(100, 100));
@@ -116,6 +120,7 @@ void Game::generateEnemies() {
     }
 }
 
+// Tao mot ke dich moi tai vi tri ngau nhien
 void Game::spawnEnemy() {
     int x = rand() % (SCREEN_WIDTH - TILE_SIZE);
     int y = rand() % (SCREEN_HEIGHT / 2);
@@ -123,17 +128,47 @@ void Game::spawnEnemy() {
     enemies.back().setImage(enemyTankImage);
 }
 
+// Dat lai tro choi ve trang thai ban dau
 void Game::resetGame() {
     player = PlayerTank(SCREEN_WIDTH / 2, SCREEN_HEIGHT - TILE_SIZE);
     player.setImage(playerTankImage);
-    player.score = 0; // Reset điểm về 0
-    player.hp.resetToFull(); // Hồi đầy máu trực tiếp
+    player.score = 0; // Reset diem ve 0
+    player.hp.resetToFull(); // Hoi day mau truc tiep
     generateWalls();
     generateEnemies();
     healthPacks.clear();
     lastHealthSpawnTime = SDL_GetTicks();
 }
 
+// Doc diem cao nhat tu file assets/maX_diem.txt
+void Game::loadHighScore() {
+    std::ifstream file("assets/maX_diem.txt");
+    if (file.is_open()) {
+        file >> highScore;
+        file.close();
+        std::cout << "Loaded high score: " << highScore << std::endl;
+    } else {
+        highScore = 0;
+        std::cout << "No high score file found in assets/, setting to 0." << std::endl;
+    }
+}
+
+// Ghi diem cao nhat moi vao file neu diem hien tai cao hon
+void Game::saveHighScore(int score) {
+    if (score > highScore) {
+        highScore = score;
+        std::ofstream file("assets/maX_diem.txt");
+        if (file.is_open()) {
+            file << highScore;
+            file.close();
+            std::cout << "Saved new high score: " << highScore << " to assets/maX_diem.txt" << std::endl;
+        } else {
+            std::cerr << "Failed to save high score to assets/maX_diem.txt!" << std::endl;
+        }
+    }
+}
+
+// Xu ly cac su kien tu ban phim, chuot, hoac thoat game
 void Game::handleEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -144,7 +179,6 @@ void Game::handleEvents() {
 
         GameState newState = menu->handleEvents(event, gameState);
         if (newState != gameState) {
-            // Nếu chuyển từ GAME_OVER sang PLAYING (nhấn ENTER), reset game
             if (gameState == GAME_OVER && newState == PLAYING) {
                 resetGame();
             }
@@ -167,6 +201,28 @@ void Game::handleEvents() {
     }
 }
 
+/*if (gameState == PLAYING) { // Chi xu ly dieu khien khi dang choi
+            if (event.type == SDL_KEYDOWN) { // Kiem tra su kien nhan phim
+                switch (event.key.keysym.sym) {
+                    case SDLK_UP: // Phim mui ten len: di chuyen xe tang len tren
+                        player.move(player.getX(), player.getY() - 10);
+                        break;
+                    case SDLK_DOWN: // Phim mui ten xuong: di chuyen xe tang xuong duoi
+                        player.move(player.getX(), player.getY() + 10);
+                        break;
+                    case SDLK_LEFT: // Phim mui ten trai: di chuyen xe tang sang trai
+                        player.move(player.getX() - 10, player.getY());
+                        break;
+                    case SDLK_RIGHT: // Phim mui ten phai: di chuyen xe tang sang phai
+                        player.move(player.getX() + 10, player.getY());
+                        break;
+                    case SDLK_0: // Phim 0: ban dan
+                        player.shoot();
+                        player.bullets.back().setImage(bulletImage);
+                        amThanh.playSound("ban");
+                        break;
+                        */
+// Cap nhat trang thai tro choi (vi tri, va cham, sinh ke dich, goi mau)
 void Game::update() {
     if (gameState != PLAYING) {
         return;
@@ -211,7 +267,7 @@ void Game::update() {
             break;
         }
     }
-    if (!hasActiveHealth && currentTime - lastHealthSpawnTime > Uint32(10000 + (rand() % 20000))) { // 10-30 giây
+    if (!hasActiveHealth && currentTime - lastHealthSpawnTime > Uint32(10000 + (rand() % 20000))) {
         int x = rand() % (SCREEN_WIDTH - TILE_SIZE / 2);
         int y = rand() % (SCREEN_HEIGHT - TILE_SIZE / 2);
         healthPacks.push_back(HealthPack(x, y));
@@ -220,6 +276,7 @@ void Game::update() {
     }
 }
 
+// Kiem tra va xu ly va cham giua dan, ke dich, nguoi choi, goi mau
 void Game::checkCollisions() {
     for (auto& bullet : player.bullets) {
         for (auto& enemy : enemies) {
@@ -244,6 +301,7 @@ void Game::checkCollisions() {
                 amThanh.playSound("trung_dan");
 
                 if (player.hp.die()) {
+                    saveHighScore(player.score); // Ghi diem cao nhat khi game over
                     gameState = GAME_OVER;
                     std::cout << "Game Over! Final Score: " << player.score << std::endl;
                 }
@@ -254,6 +312,7 @@ void Game::checkCollisions() {
             player.hp.dinhchuong(3);
             amThanh.playSound("trung_dan");
             if (player.hp.die()) {
+                saveHighScore(player.score); // Ghi diem cao nhat khi game over
                 gameState = GAME_OVER;
                 std::cout << "Game Over! Final Score: " << player.score << std::endl;
             }
@@ -263,15 +322,16 @@ void Game::checkCollisions() {
     for (auto& health : healthPacks) {
         if (health.active && SDL_HasIntersection(&player.rect, &health.rect)) {
             health.active = false;
-            player.hp.hoiphuc(); // Hồi 1 HP
-            player.hp.hoiphuc(); // Hồi 1 HP nữa
-            player.hp.hoiphuc(); // Hồi 1 HP nữa, tổng 3 HP
+            player.hp.hoiphuc();
+            player.hp.hoiphuc();
+            player.hp.hoiphuc();
         }
     }
     healthPacks.erase(std::remove_if(healthPacks.begin(), healthPacks.end(),
         [](const HealthPack& h) { return !h.active; }), healthPacks.end());
 }
 
+// Ve thanh mau cua nguoi choi
 void Game::renderThanhmau() {
     int barWidth = 200;
     int barHeight = 20;
@@ -288,6 +348,7 @@ void Game::renderThanhmau() {
     SDL_RenderFillRect(renderer, &healthRect);
 }
 
+// Ve cac thanh phan tro choi (nen, tuong, nguoi choi, ke dich, goi mau)
 void Game::renderGameElements() {
     background->render(renderer);
 
@@ -308,6 +369,7 @@ void Game::renderGameElements() {
     renderThanhmau();
 }
 
+// Ve toan bo man hinh tro choi (bao gom menu, pause, game over)
 void Game::render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -331,6 +393,7 @@ void Game::render() {
     SDL_RenderPresent(renderer);
 }
 
+// Chay vong lap chinh cua tro choi
 void Game::run() {
     Uint32 lastTime = SDL_GetTicks();
     while (running) {

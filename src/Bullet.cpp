@@ -3,8 +3,8 @@
 Bullet::Bullet(int x, int y, int dy) : dy(dy), active(true), bulletImage(nullptr) {
     rect.x = x;
     rect.y = y;
-    rect.w = 10;
-    rect.h = 10;
+    rect.w = 100;
+    rect.h = 100;
 }
 
 void Bullet::update() {

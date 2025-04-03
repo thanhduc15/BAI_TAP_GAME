@@ -7,12 +7,14 @@ private:
     SDL_Renderer* renderer;
     TTF_Font* font;
     SDL_Color textColor;
+    SDL_Texture* menuTexture;
 
 public:
     Menu(SDL_Renderer* renderer);
     ~Menu();
 
-    void loadFont(); // Sửa từ 'bool' thành 'void'
+    void loadFont();
+    void loadMenuImage();
     void renderText(const std::string& text, int x, int y);
     void renderMenuScreen();
     void renderPauseScreen();
